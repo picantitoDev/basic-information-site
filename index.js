@@ -1,15 +1,25 @@
 import http from "http"
+import fs from "fs"
 
 const server = http
   .createServer((req, res) => {
+    let myReadStream = ""
     if (req.url === "/") {
-      // redirtec to index
+      myReadStream = fs.createReadStream("index.html")
     } else if (req.url === "/about") {
-      //about
+      myReadStream = fs.createReadStream("about.html")
     } else if (req.url === "/contact-me") {
-      //redirect to contact
+      myReadStream = fs.createReadStream("contact-me.html")
     } else {
-      //redirect to 404
+      myReadStream = fs.createReadStream("404.html")
     }
+
+    myReadStream.on("error", () => {
+      res.writeHead(404, { "Content-Type": "text/html" })
+      fs.createReadStream("404.html").pipe(res)
+    })
+
+    res.writeHead(200, { "Content-Type": "text/html" })
+    myReadStream.pipe(res)
   })
   .listen(8080)
